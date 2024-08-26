@@ -1,5 +1,7 @@
 # Directories
-Server/node_modules/
+server/node_modules/
+client/node_modules/
 
 #Files
-Server/.env
+server/.env
+client/.env

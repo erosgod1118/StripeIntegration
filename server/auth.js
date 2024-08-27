@@ -18,7 +18,7 @@ exports.authorize = function(roles = []) {
             if (token.indexOf("Bearer") !== 0) return sendError("Error: Token format invalid");
 
             const tokenString = token.split(" ")[1];
-            jwt.verify(tokenString, process.env.JWT_SecretKey, (err, decodedToken) => {
+            jwt.verify(tokenString, process.env.JWT_SECRET_KEY, (err, decodedToken) => {
                 if (err) {
                     console.log(err);
                     return sendError("Error: Broken Or Expired Token");
@@ -40,8 +40,8 @@ exports.authorize = function(roles = []) {
 };
 
 exports.issueToken = function(user) {
-    var token = jwt.sign({ ...user, iss: "Stripe Integration" }, process.env.JWT_SecretKey, {
-        expiresIn: process.env.JWT_Expire,
+    var token = jwt.sign({ ...user, iss: "Stripe Integration" }, process.env.JWT_SECRET_KEY, {
+        expiresIn: process.env.JWT_EXPIRE_TIME,
     });
 
     return token;

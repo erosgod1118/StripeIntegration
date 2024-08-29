@@ -1,8 +1,8 @@
 import React, { useState } from "react"
 
-import { postRequest } from "../utils/api"
-import PaymentForm from "./PaymentForm"
-import ListPaymentMethods from "./ListPaymentMethods"
+import { postRequest } from "../../utils/api"
+import PaymentForm from "../../components/PaymentForm"
+import ListPaymentMethods from "../../components/ListPaymentMethods"
 
 import "./PaymentScreen.scss"
 
@@ -21,7 +21,7 @@ export default function PaymentScreen() {
     }
 
     function createPaymentIntent(pSelectedPaymentMethodId) {
-        postRequest('/payment/create', {
+        postRequest('/stripe/payment/create', {
             paymentMethod: pSelectedPaymentMethodId
         })
             .then(resp => {
@@ -45,7 +45,7 @@ export default function PaymentScreen() {
     }
 
     return (
-        <div className="wrapper">
+        <div className="mp-wrapper">
             {activeScreen.prePayment && <button onClick={handleClickMakePayment}>Make Payment</button>}
             {activeScreen.paymentMethods && <ListPaymentMethods handleSelectCard={handleSelectCard} />}
             {activeScreen.paymentForm && paymentIntent && <PaymentForm paymentIntent={paymentIntent} paymentMethod={selectedMethod} />}

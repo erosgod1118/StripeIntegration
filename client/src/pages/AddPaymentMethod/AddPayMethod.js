@@ -4,7 +4,7 @@ import { Country, State, City } from "country-state-city"
 import Select from "react-select";
 
 import "./AddPayMethod.scss"
-import { postRequest } from "../utils/api"
+import { postRequest } from "../../utils/api"
 
 export default function AddPayMethod() {
     const stripe = useStripe()

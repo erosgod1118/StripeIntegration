@@ -1,24 +1,33 @@
-import React from "react"
+import React, { lazy } from "react"
 import { BrowserRouter, Route, Routes } from "react-router-dom"
 
-import Register from "./components/Register"
-import StripeWrapper from "./components/StripeWrapper"
-import AddPayMethod from "./components/AddPayMethod"
-import PaymentScreen from "./components/PaymentScreen"
+import { ProtectedRoute } from "./routes/ProtectedRoute"
+import AuthProvider from "./provider/AuthProvider"
 
 import './App.scss'
 
+const Register = lazy(() => import("./pages/Register/Register"))
+const Login = lazy(() => import("./pages/Login/Login"))
+const StripeWrapper = lazy(() => import("./components/StripeWrapper"))
+const AddPayMethod = lazy(() => import("./pages/AddPaymentMethod/AddPayMethod"))
+const PaymentScreen = lazy(() => import("./pages/MakePayment/PaymentScreen"))
+
 function App() {
 	return (
-		<StripeWrapper>
-			<BrowserRouter>
-				<Routes>
-					<Route path="/register" element={<Register />} />
-					<Route path="/add-payment-method" element={<AddPayMethod />} />
-					<Route path="/make-payment" element={<PaymentScreen />} />
-				</Routes>
-			</BrowserRouter>
-		</StripeWrapper>
+		<AuthProvider>
+			<StripeWrapper>
+				<BrowserRouter>
+					<Routes>
+						<Route path="/register" element={<Register />} />
+						<Route path="/login" element={<Login />} />
+						<Route element={<ProtectedRoute />}>
+							<Route path="/add-payment-method" element={<AddPayMethod />} />
+							<Route path="/make-payment" element={<PaymentScreen />} />
+						</Route>
+					</Routes>
+				</BrowserRouter>
+			</StripeWrapper>
+		</AuthProvider>
 	)
 }
 

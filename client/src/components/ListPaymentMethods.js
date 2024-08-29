@@ -10,7 +10,7 @@ export default function ListPaymentMethods({ handleSelectCard }) {
     const [paymentMethods, setPaymentMethods] = useState(null)
 
     function getPaymentMethods() {
-        getRequest('/payment/methods')
+        getRequest('/stripe/payment/methods', localStorage.getItem('token'))
             .then(resp => {
                 console.log(resp.data.data)
                 setPaymentMethods(resp.data.data)
@@ -23,7 +23,7 @@ export default function ListPaymentMethods({ handleSelectCard }) {
     useEffect(getPaymentMethods, [])
 
     return (
-        <div className="wrapper">
+        <div className="lpm-wrapper">
             <h3>Select your preferred payment method</h3>
             {paymentMethods && paymentMethods.map(method => (
             <div className="card" onClick={() => handleSelectCard(method)}>

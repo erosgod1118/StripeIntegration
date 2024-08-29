@@ -1,11 +1,13 @@
 import React, { useState } from "react"
+import { useNavigate } from "react-router-dom"
 
-import "./Register.scss"
+import "./Login.scss"
 
-import { postRequest } from "../utils/api"
+import { postRequest } from "../../utils/api"
 
-export default function Register() {
+export default function Login() {
     const [formData, setFormData] = useState({})
+    const navigate = useNavigate()
 
     function handleFormChange(e) {
         const { name, value } = e.target
@@ -16,10 +18,11 @@ export default function Register() {
 
     function handleFormSubmit(e) {
         e.preventDefault()
-        postRequest("/user/register", formData)
+        postRequest("/user/login", formData)
             .then((resp) => {
                 console.log(resp)
-                alert("Customer Created")
+                localStorage.setItem('token', resp.data.token)
+                navigate('/make-payment')
             })
             .catch((err) => {
                 console.log(err)
@@ -29,11 +32,7 @@ export default function Register() {
     return (
         <div className="wrapper">
             <form onChange={handleFormChange} onSubmit={handleFormSubmit}>
-                <div className="title">Create An Account</div>
-                <div className="row">
-                    <label>Name</label>
-                    <input name="name" type="text" />
-                </div>
+                <div className="title">Log In</div>
                 <div className="row">
                     <label>Email</label>
                     <input name="email" type="email" />
@@ -42,15 +41,10 @@ export default function Register() {
                     <label>Password</label>
                     <input name="password" type="password" />
                 </div>
-                <div className="row">
-                    <label>Phone</label>
-                    <input name="phone" type="number" />
-                </div>
                 <div className="btnContainer">
-                    <button>Create Account</button>
+                    <button>Login</button>
                 </div>
             </form>
         </div>
     )
 }
-

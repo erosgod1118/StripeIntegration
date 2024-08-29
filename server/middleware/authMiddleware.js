@@ -11,7 +11,6 @@ exports.authorize = function(roles = []) {
         }
 
         try {
-            console.log("Request Header: ", req.headers);
             const token = req.headers['Authorization'] || req.headers['authorization'];
 
             if (!token) return sendError("Error: No Token");
@@ -25,12 +24,13 @@ exports.authorize = function(roles = []) {
                 }
 
                 if (!decodedToken.role) return sendError("Error: Role missing");
-                console.log("Roles: ", roles)
+                
                 const userRole = decodedToken.role;
-                console.log("User Role: ", userRole)
+                
                 if (roles.indexOf(userRole) === -1) return sendError("Error: User not authorized");
 
                 req.user = decodedToken;
+                
                 next();
             })
         } catch(err) {

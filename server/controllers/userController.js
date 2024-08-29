@@ -1,15 +1,16 @@
 const bcrypt = require("bcrypt");
 const ObjectID = require("mongodb").ObjectId;
 
-const { issueToken, authorize, Roles } = require("../utils/authUtils");
+const { issueToken } = require("../utils/authUtils");
+const { createStripeCustomer } = require('../utils/stripeUtils')
 
 const db = require("../model/db");
 
 exports.registerUser = async function (req, res) {
-    const { email, password, role, name } = req.body;
+    const { email, password, role, name, phone } = req.body;
     
     const hashedPassword = await bcrypt.hash(password, 10)
-    const insertData = { name, email, password: hashedPassword, role, isActive: false };
+    const insertData = { name, email, password: hashedPassword, role, isActive: false, phone };
     
     const usersCollection = await db.getDB().collection("users");
     usersCollection.createIndex({ email: 1 }, { unique: true });
@@ -18,6 +19,9 @@ exports.registerUser = async function (req, res) {
         const result = await usersCollection.insertOne(insertData);
         const newUser = { _id: result.insertedId, email, name, role };
         const token = issueToken(newUser);
+        console.log("Before creating stripe customer: ", email, name, phone)
+        const customer = await createStripeCustomer({ name, email, phone })
+        console.log("Create stripe customer: ", customer)
         
         return res.status(200).json({ ...newUser, token });
     } catch (err) {
@@ -45,7 +49,6 @@ exports.loginUser = async function (req, res) {
 
         try {
             isPasswordCorrect = await bcrypt.compare(password, hashedPassword);
-            console.log(isPasswordCorrect);
         } catch (errBcrypt) {
             console.log(errBcrypt);
             return res.status(400).json({ message: "Error: Could not get user password" });
@@ -57,6 +60,8 @@ exports.loginUser = async function (req, res) {
 
         const user = foundUser;
         delete user.password;
+
+        req.session.userId = foundUser._id
 
         const token = issueToken(user);
         return res.status(200).json({ ...user, token });
@@ -103,12 +108,10 @@ exports.updateUserStatus = async function (req, res) {
     }
 }
 
-exports.logoutUser = function (req, res) {
-    if (req.session != undefined) {
-        req.session.destroy()
+exports.logoutUser = function (pReq, pRes) {
+    if (pReq.session != undefined) {
+        pReq.session.destroy()
     }
-
-    res.clearCookie('connect.sid')
     
-    return res.status(200).json({ message: "Successfully logged out" })
+    return pRes.status(200).json({ message: "Successfully logged out" })
 }

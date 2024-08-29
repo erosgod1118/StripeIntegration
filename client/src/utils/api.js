@@ -10,10 +10,16 @@ export const postRequest = (path, data) => {
     })
 }
 
-export const getRequest = (path) => {
-    return axios.get(`${SERVER_BASE_URL}${path}`, {
-        headers: {
-            "Content-Type": "application/json",
-        },
+export const getRequest = (pPath, pToken = null) => {
+    const headers = {
+        "Content-Type": "application/json",
+    }
+
+    if (pToken) {
+        headers['Authorization'] = `Bearer ${pToken}`
+    } console.log("Headers: ", headers)
+
+    return axios.get(`${SERVER_BASE_URL}${pPath}`, {
+        headers: headers
     })
 }

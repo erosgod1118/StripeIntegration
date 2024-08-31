@@ -19,9 +19,8 @@ exports.registerUser = async function (req, res) {
         const result = await usersCollection.insertOne(insertData);
         const newUser = { _id: result.insertedId, email, name, role };
         const token = issueToken(newUser);
-        console.log("Before creating stripe customer: ", email, name, phone)
-        const customer = await createStripeCustomer({ name, email, phone })
-        console.log("Create stripe customer: ", customer)
+        
+        const customer = await createStripeCustomer(name, email, phone)
         
         return res.status(200).json({ ...newUser, token });
     } catch (err) {

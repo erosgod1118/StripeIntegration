@@ -13,13 +13,13 @@
     "country-state-city": "^3.2.1",
     "date-fns": "^3.6.0",
     "dotenv": "^16.4.5",
-    "node-sass": "^7.0.3",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-payment-inputs": "^1.2.0",
     "react-router-dom": "^6.26.1",
     "react-scripts": "5.0.1",
     "react-select": "^5.8.0",
+    "sass": "^1.77.8",
     "web-vitals": "^2.1.4"
   },
   "scripts": {

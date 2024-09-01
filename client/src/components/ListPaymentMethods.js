@@ -10,7 +10,7 @@ export default function ListPaymentMethods({ handleSelectCard }) {
     const [paymentMethods, setPaymentMethods] = useState(null)
 
     function getPaymentMethods() {
-        getRequest('/stripe/payment/methods', localStorage.getItem('token'))
+        getRequest('/stripe/payment/methods?stripeCustomerId=' + localStorage.getItem('loggedInStripeCustomerId'), localStorage.getItem('token'))
             .then(resp => {
                 console.log(resp.data.data)
                 setPaymentMethods(resp.data.data)

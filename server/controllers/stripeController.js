@@ -16,10 +16,14 @@ exports.attachPaymentMethod = async function (pReq, pRes) {
 }
 
 exports.getPaymentMethods = async function (pReq, pRes) {
-    const customerId = pReq.session.userId
-    console.log("Customer Id: ", customerId)
+    const stripeCustomerId = pReq.query.stripeCustomerId
+    if (stripeCustomerId == undefined) {
+        console.log("Stripe Customer Id is undefined")
+        pRes.status(500).json("Stripe customer Id is undefined")
+    }
+
     try {
-        const paymentMethods = await listCustomerPayMethods(customerId)
+        const paymentMethods = await listCustomerPayMethods(stripeCustomerId)
         pRes.status(200).json(paymentMethods)
     } catch (err) {
         console.log(err)

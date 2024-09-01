@@ -7,7 +7,7 @@ import { postRequest } from "../../utils/api"
 
 export default function Login() {
     const [formData, setFormData] = useState({})
-    const navigate = useNavigate()
+    const navigate = useNavigate();
 
     function handleFormChange(e) {
         const { name, value } = e.target
@@ -22,6 +22,7 @@ export default function Login() {
             .then((resp) => {
                 console.log(resp)
                 localStorage.setItem('token', resp.data.token)
+                localStorage.setItem('loggedInStripeCustomerId', resp.data.stripeCustomerId)
                 navigate('/make-payment')
             })
             .catch((err) => {

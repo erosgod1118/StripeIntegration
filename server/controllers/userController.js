@@ -16,11 +16,16 @@ exports.registerUser = async function (req, res) {
     usersCollection.createIndex({ email: 1 }, { unique: true });
 
     try {
+        const customer = await createStripeCustomer(name, email, phone)
+        console.log("Created Stripe Customer: ", customer)
+
+        insertData['stripeCustomerId'] = customer.id
+
         const result = await usersCollection.insertOne(insertData);
         const newUser = { _id: result.insertedId, email, name, role };
         const token = issueToken(newUser);
         
-        const customer = await createStripeCustomer(name, email, phone)
+        
         
         return res.status(200).json({ ...newUser, token });
     } catch (err) {
@@ -59,8 +64,6 @@ exports.loginUser = async function (req, res) {
 
         const user = foundUser;
         delete user.password;
-
-        req.session.userId = foundUser._id
 
         const token = issueToken(user);
         return res.status(200).json({ ...user, token });

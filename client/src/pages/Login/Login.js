@@ -20,9 +20,14 @@ export default function Login() {
         e.preventDefault()
         postRequest("/user/login", formData)
             .then((resp) => {
-                console.log(resp)
                 localStorage.setItem('token', resp.data.token)
                 localStorage.setItem('loggedInStripeCustomerId', resp.data.stripeCustomerId)
+
+                setTimeout(() => {
+                    localStorage.removeItem('token')
+                    localStorage.removeItem('loggedInStripeCustomerId')
+                }, 10 * 60 * 1000)
+
                 navigate('/make-payment')
             })
             .catch((err) => {

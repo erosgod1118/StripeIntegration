@@ -3,23 +3,35 @@ import axios from "axios"
 const SERVER_BASE_URL = process.env.REACT_APP_SERVER_BASE_URL
 
 export const postRequest = (path, data) => {
-    return axios.post(`${SERVER_BASE_URL}${path}`, data, {
-        headers: {
-            "Content-Type": "application/json",
-        },
-    })
-}
-
-export const getRequest = (pPath, pToken = null) => {
     const headers = {
         "Content-Type": "application/json",
     }
 
-    if (pToken) {
-        headers['Authorization'] = `Bearer ${pToken}`
-    } console.log("Headers: ", headers)
+    const token = localStorage.getItem("token")
+    if (token) {
+        headers['Authorization'] = `Bearer ${token}`
+    } else {
+        return new Error("No auth token")
+    }
+
+    return axios.post(`${SERVER_BASE_URL}${path}`, data, {
+        headers: headers,
+    })
+}
+
+export const getRequest = (pPath) => {
+    const headers = {
+        "Content-Type": "application/json",
+    }
+
+    const token = localStorage.getItem("token")
+    if (token) {
+        headers['Authorization'] = `Bearer ${token}`
+    } else {
+        return new Error("No auth token")
+    }
 
     return axios.get(`${SERVER_BASE_URL}${pPath}`, {
-        headers: headers
+        headers: headers,
     })
 }

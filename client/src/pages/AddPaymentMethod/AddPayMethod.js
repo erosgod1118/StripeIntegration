@@ -19,8 +19,8 @@ export default function AddPayMethod() {
             postalCode: "",
         },
     })
-    const [locations, setLocations] = useState({ countries: "", states: "", cities: "" })
-    const [selectedLocation, setSelectedLocation] = useState({ contry: {}, city: {}, state: {} })
+    const [locations, setLocations] = useState({ countries: [], states: [], cities: [] })
+    const [selectedLocation, setSelectedLocation] = useState({ contry: {label: "", value: ""}, city: {label: "", value: ""}, state: {label: "", value: ""} })
 
     function handleChangeAddressLine(pE) {
         const { value } = pE.target
@@ -47,7 +47,7 @@ export default function AddPayMethod() {
         const states = State.getStatesOfCountry(pCountry.value)
         
         setSelectedLocation(prev => {
-            return { ...prev, pCountry }
+            return { ...prev, country: pCountry }
         })
         setLocations(prev => {
             return { ...prev, states: parseForSelect(states) }
@@ -58,7 +58,7 @@ export default function AddPayMethod() {
         const cities = City.getCitiesOfState(selectedLocation.country.value, pState.value)
 
         setSelectedLocation(prev => {
-            return { ...prev, pState }
+            return { ...prev, state: pState }
         })
         setLocations(prev => ({ ...prev, cities: parseForSelect(cities) }))
     }
@@ -88,15 +88,13 @@ export default function AddPayMethod() {
                 card: elements.getElement(CardElement),
             })
             .then(resp => {
-                postRequest("/payment/method/attach", { paymentMethod: resp.paymentMethod })
+                postRequest("/stripe/payment/method/attach", { paymentMethod: resp.paymentMethod, stripeCustomerId: localStorage.getItem("loggedInStripeCustomerId") })
                     .then(resp => {
-
+                        alert("New payment method attached successfully!")
                     })
                     .catch(err => {
 
                     })
-
-                console.log(resp)
             })
         } catch (err) {
 
@@ -149,7 +147,6 @@ export default function AddPayMethod() {
                                 onChange={handleSelectCountry}
                             />
                         </div>
-
                         <div>
                             <label>State</label>
                             <Select

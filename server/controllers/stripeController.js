@@ -2,11 +2,10 @@ const { attachMethod, listCustomerPayMethods } = require('../utils/stripeUtils')
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY)
 
 exports.attachPaymentMethod = async function (pReq, pRes) {
-    const { paymentMethod } = pReq.body
-    const customerId = pReq.session.userId
+    const { paymentMethod, stripeCustomerId } = pReq.body
 
     try {
-        const method = await attachMethod({ paymentMethod, customerId })
+        const method = await attachMethod(paymentMethod, stripeCustomerId)
         console.log(method)
         pRes.status(200).json({ message: "Payment method attached successfully" })
     } catch (err) {

@@ -20,9 +20,11 @@ export default function PaymentScreen() {
         createPaymentIntent(pMethod.id)
     }
 
-    function createPaymentIntent(pSelectedPaymentMethodId) {
+    function createPaymentIntent(pSelectedPaymentMethod) {
+        console.log("Selected Payment Method: ", pSelectedPaymentMethod)
+
         postRequest('/stripe/payment/create', {
-            paymentMethod: pSelectedPaymentMethodId
+            paymentMethod: pSelectedPaymentMethod.id
         })
             .then(resp => {
                 setPaymentIntent(resp.data)

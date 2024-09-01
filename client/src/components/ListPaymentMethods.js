@@ -10,9 +10,8 @@ export default function ListPaymentMethods({ handleSelectCard }) {
     const [paymentMethods, setPaymentMethods] = useState(null)
 
     function getPaymentMethods() {
-        getRequest('/stripe/payment/methods?stripeCustomerId=' + localStorage.getItem('loggedInStripeCustomerId'), localStorage.getItem('token'))
+        getRequest('/stripe/payment/methods?stripeCustomerId=' + localStorage.getItem('loggedInStripeCustomerId'))
             .then(resp => {
-                console.log(resp.data.data)
                 setPaymentMethods(resp.data.data)
             })
             .catch(err => {
@@ -26,7 +25,7 @@ export default function ListPaymentMethods({ handleSelectCard }) {
         <div className="lpm-wrapper">
             <h3>Select your preferred payment method</h3>
             {paymentMethods && paymentMethods.map(method => (
-            <div className="card" onClick={() => handleSelectCard(method)}>
+            <div key={method.id} className="card" onClick={() => handleSelectCard(method)}>
                 <div className="cardLogo">
                     <img src={getCardImage(method.card.brand)} alt="" />
                 </div>

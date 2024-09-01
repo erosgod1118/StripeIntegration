@@ -31,7 +31,8 @@ exports.listCustomerPayMethods = async function (pCustomerId) {
     })
 }
 
-exports.attachMethod = async function ({ pPaymentMethod, pCustomerId }) {
+exports.attachMethod = async function (pPaymentMethod, pCustomerId) {
+    console.log("Attach: ", pPaymentMethod)
     return new Promise(async (resolve, reject) => {
         try {
             const paymentMethodAttach = await stripe.paymentMethods.attach(pPaymentMethod.id, {

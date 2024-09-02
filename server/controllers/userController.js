@@ -1,24 +1,31 @@
-const router = require("express").Router();
 const bcrypt = require("bcrypt");
 const ObjectID = require("mongodb").ObjectId;
 
-const db = require("./db");
+const { issueToken } = require("../utils/authUtils");
+const { createStripeCustomer } = require('../utils/stripeUtils')
 
-const { issueToken, authorize, Roles } = require("./auth");
+const db = require("../model/db");
 
-router.post("/user", async (req, res) => {
-    const { email, password, role, name } = req.body;
+exports.registerUser = async function (req, res) {
+    const { email, password, role, name, phone } = req.body;
     
     const hashedPassword = await bcrypt.hash(password, 10)
-    const insertData = { name, email, password: hashedPassword, role, isActive: false };
+    const insertData = { name, email, password: hashedPassword, role, isActive: false, phone };
     
     const usersCollection = await db.getDB().collection("users");
     usersCollection.createIndex({ email: 1 }, { unique: true });
 
     try {
+        const customer = await createStripeCustomer(name, email, phone)
+        console.log("Created Stripe Customer: ", customer)
+
+        insertData['stripeCustomerId'] = customer.id
+
         const result = await usersCollection.insertOne(insertData);
         const newUser = { _id: result.insertedId, email, name, role };
         const token = issueToken(newUser);
+        
+        
         
         return res.status(200).json({ ...newUser, token });
     } catch (err) {
@@ -27,9 +34,9 @@ router.post("/user", async (req, res) => {
         }
         return res.status(400).json({ message: "Error: Could not add user" });
     }
-});
+}
 
-router.post("/auth/login", async (req, res) => {
+exports.loginUser = async function (req, res) {
     const { email, password } = req.body;
     const query = { email };
 
@@ -46,7 +53,6 @@ router.post("/auth/login", async (req, res) => {
 
         try {
             isPasswordCorrect = await bcrypt.compare(password, hashedPassword);
-            console.log(isPasswordCorrect);
         } catch (errBcrypt) {
             console.log(errBcrypt);
             return res.status(400).json({ message: "Error: Could not get user password" });
@@ -65,9 +71,9 @@ router.post("/auth/login", async (req, res) => {
         console.log(err);
         return res.status(400).json({ message: "Error: Could not get user details" });
     }
-});
+}
 
-router.get("/user/profile", authorize(Roles.All), async (req, res) => {
+exports.getUserProfile = async function (req, res) {
     const query = { _id: new ObjectID(req.user._id) };
 
     const usersCollection = await db.getDB().collection("users");
@@ -79,9 +85,9 @@ router.get("/user/profile", authorize(Roles.All), async (req, res) => {
         console.log(err);
         return res.status(400).json({ message: "Error: Could not get user profile" });
     }
-});
+}
 
-router.patch("/user/status", authorize(Roles.Admin), async (req, res) => {
+exports.updateUserStatus = async function (req, res) {
     const { userId, isActive } = req.body;
 
     var query;
@@ -102,6 +108,12 @@ router.patch("/user/status", authorize(Roles.Admin), async (req, res) => {
         console.log(err);
         return res.status(400).json({ message: "Error: Could not update" });
     }
-});
+}
 
-module.exports = router;
+exports.logoutUser = function (pReq, pRes) {
+    if (pReq.session != undefined) {
+        pReq.session.destroy()
+    }
+    
+    return pRes.status(200).json({ message: "Successfully logged out" })
+}

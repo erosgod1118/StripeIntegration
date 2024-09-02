@@ -1,4 +1,5 @@
 import React, { useState } from "react"
+import { useNavigate } from "react-router-dom"
 
 import { postRequest } from "../../utils/api"
 import PaymentForm from "../../components/PaymentForm"
@@ -14,17 +15,17 @@ export default function PaymentScreen() {
         paymentMethods: false,
         paymentForm: false,
     })
+    const navigate = useNavigate()
 
     function handleSelectCard(pMethod) {
         setSelectedMethod(pMethod)
-        createPaymentIntent(pMethod.id)
+        createPaymentIntent(pMethod)
     }
 
     function createPaymentIntent(pSelectedPaymentMethod) {
-        console.log("Selected Payment Method: ", pSelectedPaymentMethod)
-
         postRequest('/stripe/payment/create', {
-            paymentMethod: pSelectedPaymentMethod.id
+            paymentMethodId: pSelectedPaymentMethod.id,
+            stripeCustomerId: localStorage.getItem("loggedInStripeCustomerId"),
         })
             .then(resp => {
                 setPaymentIntent(resp.data)
@@ -32,7 +33,14 @@ export default function PaymentScreen() {
                 changeActiveScreen("paymentForm")
             })
             .catch(err => {
+                if (err.status === 401) {
+                    alert("Token Expired.")
+                    navigate("/login")
+                }
+
                 console.log(err)
+                alert("Create payment failed.")
+                navigate("/make-payment")
             })
     }
 
@@ -50,7 +58,7 @@ export default function PaymentScreen() {
         <div className="mp-wrapper">
             {activeScreen.prePayment && <button onClick={handleClickMakePayment}>Make Payment</button>}
             {activeScreen.paymentMethods && <ListPaymentMethods handleSelectCard={handleSelectCard} />}
-            {activeScreen.paymentForm && paymentIntent && <PaymentForm paymentIntent={paymentIntent} paymentMethod={selectedMethod} />}
+            {activeScreen.paymentForm && paymentIntent && <PaymentForm pPaymentIntent={paymentIntent} pPaymentMethod={selectedMethod} />}
         </div>
     )
 }

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react"
 import { CardElement, useElements, useStripe } from "@stripe/react-stripe-js"
 import { Country, State, City } from "country-state-city"
 import Select from "react-select";
+import { useNavigate } from "react-router-dom"
 
 import "./AddPayMethod.scss"
 import { postRequest } from "../../utils/api"
@@ -9,6 +10,7 @@ import { postRequest } from "../../utils/api"
 export default function AddPayMethod() {
     const stripe = useStripe()
     const elements = useElements()
+    const navigate = useNavigate()
 
     const [cardInfo, setCardInfo] = useState({
         name: "",
@@ -93,11 +95,23 @@ export default function AddPayMethod() {
                         alert("New payment method attached successfully!")
                     })
                     .catch(err => {
-
+                        if (err.status === 401) {
+                            alert("Token Expired.")
+                            navigate("/login")
+                            return
+                        }
+        
+                        console.log(err)
+                        alert("Attach new payment methods failed.")
+                        navigate("/add-payment-method")
+                        return
                     })
             })
         } catch (err) {
-
+            console.log(err)
+            alert("Add new payment method failed.")
+            navigate("/add-payment-method")
+            return
         }
     }
 

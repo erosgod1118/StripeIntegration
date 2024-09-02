@@ -8,6 +8,7 @@ import './App.scss'
 
 const Register = lazy(() => import("./pages/Register/Register"))
 const Login = lazy(() => import("./pages/Login/Login"))
+const Logout = lazy(() => import("./pages/Logout/Logout"))
 const StripeWrapper = lazy(() => import("./components/StripeWrapper"))
 const AddPayMethod = lazy(() => import("./pages/AddPaymentMethod/AddPayMethod"))
 const PaymentScreen = lazy(() => import("./pages/MakePayment/PaymentScreen"))
@@ -20,6 +21,7 @@ function App() {
 					<Routes>
 						<Route path="/register" element={<Register />} />
 						<Route path="/login" element={<Login />} />
+						<Route path="/logout" element={<Logout />} />
 						<Route element={<ProtectedRoute />}>
 							<Route path="/add-payment-method" element={<AddPayMethod />} />
 							<Route path="/make-payment" element={<PaymentScreen />} />

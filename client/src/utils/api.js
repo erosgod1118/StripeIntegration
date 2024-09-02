@@ -6,12 +6,10 @@ export const postRequest = (path, data) => {
     const headers = {
         "Content-Type": "application/json",
     }
-
+    
     const token = localStorage.getItem("token")
     if (token) {
         headers['Authorization'] = `Bearer ${token}`
-    } else {
-        return new Error("No auth token")
     }
 
     return axios.post(`${SERVER_BASE_URL}${path}`, data, {
@@ -27,8 +25,6 @@ export const getRequest = (pPath) => {
     const token = localStorage.getItem("token")
     if (token) {
         headers['Authorization'] = `Bearer ${token}`
-    } else {
-        return new Error("No auth token")
     }
 
     return axios.get(`${SERVER_BASE_URL}${pPath}`, {

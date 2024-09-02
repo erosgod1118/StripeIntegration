@@ -2,14 +2,18 @@ import { useState } from "react"
 import clsx from "clsx"
 import { format } from "date-fns"
 import { useStripe, CardCvcElement, useElements } from "@stripe/react-stripe-js"
+import { useNavigate } from "react-router-dom"
 
 import { postRequest } from "../utils/api"
+
+import "./PaymentForm.scss"
 
 export default function PaymentForm({ pPaymentMethod, pPaymentIntent }) {
     const stripe = useStripe()
     const elements = useElements()
     const [cvcError, setCvcError] = useState(null)
     const { card, billing_details } = pPaymentMethod
+    const navigate = useNavigate()
 
     const handleSubmit = async (pE) => {
         pE.preventDefault()
@@ -19,9 +23,9 @@ export default function PaymentForm({ pPaymentMethod, pPaymentIntent }) {
                 if (result.error) {
                     setCvcError(result.error.message)
                 } else {
-                    postRequest('/payment/confirm', {
-                        paymentMethod: pPaymentMethod.id,
-                        paymentIntent: pPaymentIntent.id,
+                    postRequest('/stripe/payment/confirm', {
+                        paymentMethodId: pPaymentMethod.id,
+                        paymentTransactionId: pPaymentIntent.id,
                     })
                         .then(resp => {
                             console.log(resp.data)
@@ -29,11 +33,23 @@ export default function PaymentForm({ pPaymentMethod, pPaymentIntent }) {
                         })
                         .catch(err => {
                             console.log(err)
+                            if (err.status === 401) {
+                                alert("Token Expired.")
+                                navigate("/login")
+                                return
+                            }
+
+                            alert("Payment confirm failed.")
+                            navigate("/make-payment")
+                            return
                         })
                 }
             })
             .catch(err => {
                 console.log(err)
+                alert("Stripe payment confirm failed.")
+                navigate("/make-payment")
+                return
             })
     }
 
@@ -44,7 +60,8 @@ export default function PaymentForm({ pPaymentMethod, pPaymentIntent }) {
             handleAction(pResponse)
         } else {
             alert("Payment Success")
-            window.location.reload()
+            navigate("/make-payment")
+            return
         }
     }
 
@@ -63,7 +80,15 @@ export default function PaymentForm({ pPaymentMethod, pPaymentIntent }) {
                                 handleServerResponse(resp.data)
                             })
                             .catch(err => {
-                                console.log(err)
+                                if (err.status === 401) {
+                                    alert("Token Expired.")
+                                    navigate("/login")
+                                    return
+                                }
+    
+                                alert("Payment confirm failed.")
+                                navigate("/make-payment")
+                                return
                             })
                     }
                 })
@@ -71,7 +96,7 @@ export default function PaymentForm({ pPaymentMethod, pPaymentIntent }) {
 
     return (
         card && (
-            <div className="wrapper">
+            <div className="payform-wrapper">
                 <form onSubmit={handleSubmit}>
                     <div className="card">
                         <div className="icon">

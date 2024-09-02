@@ -31,17 +31,16 @@ exports.getPaymentMethods = async function (pReq, pRes) {
 }
 
 exports.createPayment = async function (pReq, pRes) {
-    const { paymentMethod } = pReq.body
+    const { paymentMethodId, stripeCustomerId } = pReq.body
     const amount = 1000
     const currency = "USD"
-    const userCustomerId = pReq.session.userId
 
     try {
         const paymentIntent = await stripe.paymentIntents.create({
             amount: amount * 100,
             currency: currency,
-            customer: userCustomerId,
-            payment_method: paymentMethod,
+            customer: stripeCustomerId,
+            payment_method: paymentMethodId,
             confirmation_method: "manual",
             description: "Buy Product",
         })
@@ -54,12 +53,16 @@ exports.createPayment = async function (pReq, pRes) {
 }
 
 exports.confirmPayment = async function (pReq, pRes) {
-    const { paymentIntent, paymentMethod } = pReq.body
+    const { paymentTransactionId, paymentMethodId } = pReq.body
 
     try {
-        const intent = await stripe.paymentIntents.confirm(paymentIntent, {
-            payment_method: paymentMethod,
-        })
+        const intent = await stripe.paymentIntents.confirm(
+            paymentTransactionId, 
+            {
+                payment_method: paymentMethodId,
+                return_url: 'http://localhost:3000/make-payment'
+            }
+        )
 
         pRes.status(200).json(intent)
     } catch (err) {

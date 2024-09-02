@@ -39,3 +39,8 @@ export function getCardImage(type) {
             return visa;
     }
 }
+
+export function getFullUrlFromPath(pPath) {
+    const { protocol, host } = window.location
+    return `${protocol}//${host}${pPath}`
+}

@@ -20,7 +20,7 @@ exports.authorize = function(roles = []) {
             jwt.verify(tokenString, process.env.JWT_SECRET_KEY, (err, decodedToken) => {
                 if (err) {
                     console.log(err);
-                    return sendError("Error: Broken Or Expired Token");
+                    return req.res.status(401).send("Token expired or broken.")
                 }
 
                 if (!decodedToken.role) return sendError("Error: Role missing");

@@ -11,6 +11,7 @@ export default function Login() {
 
     function handleFormChange(e) {
         const { name, value } = e.target
+
         setFormData((prev) => {
             return { ...prev, [name]: value }
         })
@@ -23,15 +24,12 @@ export default function Login() {
                 localStorage.setItem('token', resp.data.token)
                 localStorage.setItem('loggedInStripeCustomerId', resp.data.stripeCustomerId)
 
-                setTimeout(() => {
-                    localStorage.removeItem('token')
-                    localStorage.removeItem('loggedInStripeCustomerId')
-                }, 10 * 60 * 1000)
-
                 navigate('/make-payment')
             })
             .catch((err) => {
                 console.log(err)
+                alert("User login failed. Please try again.")
+                navigate('/login')
             })
     }
 
